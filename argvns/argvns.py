@@ -1,7 +1,7 @@
 from argparse import Action, ArgumentParser, Namespace
 from collections.abc import Callable, Sequence, Iterable
 from dataclasses import dataclass, field
-from typing import Generic, TypeVar, Type
+from typing import Generic, TypeVar, Type, Literal
 
 T = TypeVar("T")
 
@@ -49,6 +49,7 @@ class Arg(Generic[T]):
     long: str | Sequence[str] | None = None
     type: Callable[[str], T] = str
     choices: Iterable[T] | None = None
+    nargs: int | Literal["+", "*", "?"] | None = None
     dest: str | None = None
     default: T | None = None
     const: T | None = None
@@ -78,7 +79,7 @@ class Arg(Generic[T]):
         required = (not self.short and not self.long) if self.required is None else self.required
 
         parser.add_argument(*name_or_flags, action=self.action, dest=self.dest, type=self.type, default=self.default,
-                            choices=self.choices, const=self.const, required=required, help=self.help)
+                            nargs=self.nargs, choices=self.choices, const=self.const, required=required, help=self.help)
 
     def check_valid_assignment(self, value: T) -> None:
         """Determine whether the given value is an acceptable, valid assignment for this argument."""
