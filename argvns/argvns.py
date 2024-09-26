@@ -78,8 +78,16 @@ class Arg(Generic[T]):
         # required if neither short nor long flags were given, not required otherwise
         required = (not self.short and not self.long) if self.required is None else self.required
 
-        parser.add_argument(*name_or_flags, action=self.action, dest=self.dest, type=self.type, default=self.default,
-                            nargs=self.nargs, choices=self.choices, const=self.const, required=required, help=self.help)
+        kwargs = dict(action=self.action, dest=self.dest, type=self.type, default=self.default, nargs=self.nargs,
+                      choices=self.choices, const=self.const, required=required, help=self.help)
+
+        if self.action == "store_true" or self.action == "store_false":
+            kwargs.pop("type")
+            kwargs.pop("const")
+            kwargs.pop("nargs")
+            kwargs.pop("choices")
+
+        parser.add_argument(*name_or_flags, **kwargs)
 
     def check_valid_assignment(self, value: T) -> None:
         """Determine whether the given value is an acceptable, valid assignment for this argument."""
